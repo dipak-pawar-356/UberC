@@ -143,6 +143,89 @@ The request body must be sent in JSON format and include the following fields:
 
 ---
 
+## User Profile Endpoint
+
+### Endpoint: `/users/profile`
+
+#### Description
+This endpoint allows authenticated users to retrieve their profile details.
+
+#### Request Method
+`GET`
+
+#### Headers
+- **Authorization:** `Bearer <JWT_TOKEN>`
+
+#### Response
+##### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+  ```json
+  {
+    "user": {
+      "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "email": "johndoe@example.com",
+      "_id": "<USER_ID>"
+    }
+  }
+  ```
+
+##### Error Responses
+- **Status Code:** `401 Unauthorized`
+  - When the token is missing or invalid:
+    ```json
+    {
+      "message": "Authentication failed"
+    }
+    ```
+
+- **Status Code:** `404 Not Found`
+  - When the user does not exist:
+    ```json
+    {
+      "message": "User not found"
+    }
+    ```
+
+---
+
+## User Logout Endpoint
+
+### Endpoint: `/users/logout`
+
+#### Description
+This endpoint allows authenticated users to log out by invalidating their JWT.
+
+#### Request Method
+`GET`
+
+#### Headers
+- **Authorization:** `Bearer <JWT_TOKEN>`
+
+#### Response
+##### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+  ```json
+  {
+    "message": "Logged out successfully"
+  }
+  ```
+
+##### Error Responses
+- **Status Code:** `401 Unauthorized`
+  - When the token is missing or invalid:
+    ```json
+    {
+      "message": "Authentication failed"
+    }
+    ```
+
+---
+
 ## Environment Variables
 Make sure to configure the following environment variables:
 - **JWT_SECRET:** Secret key for JWT token generation.
