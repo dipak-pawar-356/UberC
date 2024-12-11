@@ -1,17 +1,19 @@
-# User Registration Endpoint Documentation
+# User Authentication API Documentation
 
-## Endpoint: `/users/register`
+## User Registration Endpoint
 
-### Description
-This endpoint allows users to register by providing the necessary details. Upon successful registration, the user will receive a JSON Web Token (JWT) for authentication and the user details.
+### Endpoint: `/users/register`
 
-### Request Method
+#### Description
+This endpoint allows users to register by providing their details. Upon successful registration, the user will receive a JSON Web Token (JWT) for authentication and the user details.
+
+#### Request Method
 `POST`
 
-### Headers
+#### Headers
 - **Content-Type:** `application/json`
 
-### Request Body
+#### Request Body
 The request body must be sent in JSON format and include the following fields:
 
 | Field                  | Type    | Required | Description                                  |
@@ -21,7 +23,7 @@ The request body must be sent in JSON format and include the following fields:
 | `email`                | String  | Yes      | The user's email address (must be valid).    |
 | `password`             | String  | Yes      | The user's password (minimum 6 characters).  |
 
-### Example Request
+#### Example Request
 ```json
 {
   "fullname": {
@@ -33,8 +35,8 @@ The request body must be sent in JSON format and include the following fields:
 }
 ```
 
-### Response
-#### Success Response
+#### Response
+##### Success Response
 - **Status Code:** `201 Created`
 - **Body:**
   ```json
@@ -51,7 +53,7 @@ The request body must be sent in JSON format and include the following fields:
   }
   ```
 
-#### Error Responses
+##### Error Responses
 - **Status Code:** `400 Bad Request`
   - When validation fails:
     ```json
@@ -70,18 +72,82 @@ The request body must be sent in JSON format and include the following fields:
     }
     ```
 
-### Environment Variables
+---
+
+## User Login Endpoint
+
+### Endpoint: `/users/login`
+
+#### Description
+This endpoint allows users to log in by providing their email and password. Upon successful authentication, the user will receive a JSON Web Token (JWT) and the user details.
+
+#### Request Method
+`POST`
+
+#### Headers
+- **Content-Type:** `application/json`
+
+#### Request Body
+The request body must be sent in JSON format and include the following fields:
+
+| Field     | Type   | Required | Description                              |
+|-----------|--------|----------|------------------------------------------|
+| `email`   | String | Yes      | The user's email address (must be valid).|
+| `password`| String | Yes      | The user's password.                     |
+
+#### Example Request
+```json
+{
+  "email": "johndoe@example.com",
+  "password": "securepassword123"
+}
+```
+
+#### Response
+##### Success Response
+- **Status Code:** `200 OK`
+- **Body:**
+  ```json
+  {
+    "token": "<JWT_TOKEN>",
+    "user": {
+      "fullname": {
+        "firstname": "John",
+        "lastname": "Doe"
+      },
+      "email": "johndoe@example.com",
+      "_id": "<USER_ID>"
+    }
+  }
+  ```
+
+##### Error Responses
+- **Status Code:** `400 Bad Request`
+  - When validation fails:
+    ```json
+    {
+      "errors": [
+        { "msg": "Invalid Email", "param": "email", "location": "body" },
+        { "msg": "Password must be at least 6 characters long", "param": "password", "location": "body" }
+      ]
+    }
+    ```
+
+- **Status Code:** `401 Unauthorized`
+  - When invalid credentials are provided:
+    ```json
+    {
+      "error": "Invalid email or password"
+    }
+    ```
+
+---
+
+## Environment Variables
 Make sure to configure the following environment variables:
 - **JWT_SECRET:** Secret key for JWT token generation.
 
-### Dependencies
-Ensure the following npm packages are installed:
-- `express-validator`
-- `mongoose`
-- `bcrypt`
-- `jsonwebtoken`
-
-### How to Use
+## Setup Instructions
 1. Clone the repository.
 2. Navigate to the `Backend` folder.
 3. Install dependencies:
@@ -93,8 +159,11 @@ Ensure the following npm packages are installed:
    ```bash
    npm start
    ```
-6. Send a POST request to `/users/register` with the required JSON body.
+6. Test the endpoints using a tool like Postman or cURL.
 
-### Notes
+---
+
+## Notes
 - Ensure the database is running and connected before starting the server.
-- Validate the token returned after registration for secure access to other endpoints.
+- Validate the token returned after authentication for secure access to other endpoints.
+
