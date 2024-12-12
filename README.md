@@ -1,252 +1,162 @@
-# User Authentication API Documentation
+# UberC Backend API Documentation
 
-## User Registration Endpoint
+## Overview
+UberC API provides authentication and management for users and captains. JWT is used for secure token-based authentication.
 
-### Endpoint: `/users/register`
+---
 
-#### Description
-This endpoint allows users to register by providing their details. Upon successful registration, the user will receive a JSON Web Token (JWT) for authentication and the user details.
+## Endpoints
 
-#### Request Method
-`POST`
-
-#### Headers
-- **Content-Type:** `application/json`
-
-#### Request Body
-The request body must be sent in JSON format and include the following fields:
-
-| Field                  | Type    | Required | Description                                  |
-|------------------------|---------|----------|----------------------------------------------|
-| `fullname.firstname`   | String  | Yes      | The user's first name (minimum 3 characters).|
-| `fullname.lastname`    | String  | No       | The user's last name (minimum 3 characters). |
-| `email`                | String  | Yes      | The user's email address (must be valid).    |
-| `password`             | String  | Yes      | The user's password (minimum 6 characters).  |
-
-#### Example Request
-```json
-{
-  "fullname": {
-    "firstname": "John",
-    "lastname": "Doe"
-  },
-  "email": "johndoe@example.com",
-  "password": "securepassword123"
-}
-```
-
-#### Response
-##### Success Response
-- **Status Code:** `201 Created`
-- **Body:**
+### Users
+#### 1. **Register User**
+- **POST** `/users/register`
+- **Request Body**
+  ```json
+  {
+    "fullname": { "firstname": "John", "lastname": "Doe" },
+    "email": "johndoe@example.com",
+    "password": "securepassword123"
+  }
+  ```
+- **Response**
   ```json
   {
     "token": "<JWT_TOKEN>",
     "user": {
-      "fullname": {
-        "firstname": "John",
-        "lastname": "Doe"
-      },
+      "fullname": { "firstname": "John", "lastname": "Doe" },
       "email": "johndoe@example.com",
       "_id": "<USER_ID>"
     }
   }
   ```
 
-##### Error Responses
-- **Status Code:** `400 Bad Request`
-  - When validation fails:
-    ```json
-    {
-      "errors": [
-        { "msg": "Invalid Email", "param": "email", "location": "body" },
-        { "msg": "First name must be at least 3 characters long", "param": "fullname.firstname", "location": "body" },
-        { "msg": "Password must be at least 6 characters long", "param": "password", "location": "body" }
-      ]
-    }
-    ```
-  - When required fields are missing:
-    ```json
-    {
-      "message": "Please provide all the required fields"
-    }
-    ```
-
----
-
-## User Login Endpoint
-
-### Endpoint: `/users/login`
-
-#### Description
-This endpoint allows users to log in by providing their email and password. Upon successful authentication, the user will receive a JSON Web Token (JWT) and the user details.
-
-#### Request Method
-`POST`
-
-#### Headers
-- **Content-Type:** `application/json`
-
-#### Request Body
-The request body must be sent in JSON format and include the following fields:
-
-| Field     | Type   | Required | Description                              |
-|-----------|--------|----------|------------------------------------------|
-| `email`   | String | Yes      | The user's email address (must be valid).|
-| `password`| String | Yes      | The user's password.                     |
-
-#### Example Request
-```json
-{
-  "email": "johndoe@example.com",
-  "password": "securepassword123"
-}
-```
-
-#### Response
-##### Success Response
-- **Status Code:** `200 OK`
-- **Body:**
+#### 2. **Login User**
+- **POST** `/users/login`
+- **Request Body**
+  ```json
+  {
+    "email": "johndoe@example.com",
+    "password": "securepassword123"
+  }
+  ```
+- **Response**
   ```json
   {
     "token": "<JWT_TOKEN>",
-    "user": {
-      "fullname": {
-        "firstname": "John",
-        "lastname": "Doe"
-      },
-      "email": "johndoe@example.com",
-      "_id": "<USER_ID>"
-    }
+    "user": { "email": "johndoe@example.com", "_id": "<USER_ID>" }
   }
   ```
 
-##### Error Responses
-- **Status Code:** `400 Bad Request`
-  - When validation fails:
-    ```json
-    {
-      "errors": [
-        { "msg": "Invalid Email", "param": "email", "location": "body" },
-        { "msg": "Password must be at least 6 characters long", "param": "password", "location": "body" }
-      ]
-    }
-    ```
+#### 3. **Get User Profile**
+- **GET** `/users/profile`
+- **Headers**: `Authorization: Bearer <JWT_TOKEN>`
+- **Response**
+  ```json
+  {
+    "user": { "fullname": { "firstname": "John", "lastname": "Doe" }, "email": "johndoe@example.com" }
+  }
+  ```
 
-- **Status Code:** `401 Unauthorized`
-  - When invalid credentials are provided:
-    ```json
-    {
-      "error": "Invalid email or password"
-    }
-    ```
+#### 4. **Logout User**
+- **GET** `/users/logout`
+- **Response**
+  ```json
+  { "message": "Logged out successfully" }
+  ```
 
 ---
 
-## User Profile Endpoint
-
-### Endpoint: `/users/profile`
-
-#### Description
-This endpoint allows authenticated users to retrieve their profile details.
-
-#### Request Method
-`GET`
-
-#### Headers
-- **Authorization:** `Bearer <JWT_TOKEN>`
-
-#### Response
-##### Success Response
-- **Status Code:** `200 OK`
-- **Body:**
+### Captains
+#### 1. **Register Captain**
+- **POST** `/captains/register`
+- **Request Body**
   ```json
   {
-    "user": {
-      "fullname": {
-        "firstname": "John",
-        "lastname": "Doe"
-      },
+    "fullname": { "firstname": "John", "lastname": "Doe" },
+    "email": "johndoe@example.com",
+    "password": "securepassword123",
+    "vehicle": {
+      "color": "Red",       // Min: 3 characters
+      "plate": "AB123CD",  // Min: 3 characters
+      "capacity": 4,        // Positive integer
+      "vehicleType": "car" // Must be one of: car, motorcycle, auto
+    }
+  }
+  ```
+- **Response**
+  ```json
+  {
+    "message": "Captain registered successfully",
+    "captain": {
+      "fullname": { "firstname": "John", "lastname": "Doe" },
       "email": "johndoe@example.com",
-      "_id": "<USER_ID>"
+      "vehicle": {
+        "color": "Red", "plate": "AB123CD", "capacity": 4, "vehicleType": "car"
+      },
+      "_id": "<CAPTAIN_ID>"
     }
   }
   ```
 
-##### Error Responses
-- **Status Code:** `401 Unauthorized`
-  - When the token is missing or invalid:
-    ```json
-    {
-      "message": "Authentication failed"
-    }
-    ```
+#### 2. **Login Captain**
+- **POST** `/captains/login`
+- **Request Body**
+  ```json
+  {
+    "email": "captain@example.com",
+    "password": "securepassword123"
+  }
+  ```
+- **Response**
+  ```json
+  {
+    "token": "<JWT_TOKEN>",
+    "captain": { "email": "captain@example.com", "_id": "<CAPTAIN_ID>" }
+  }
+  ```
 
-- **Status Code:** `404 Not Found`
-  - When the user does not exist:
-    ```json
-    {
-      "message": "User not found"
-    }
-    ```
+#### 3. **Get Captain Profile**
+- **GET** `/captains/profile`
+- **Headers**: `Authorization: Bearer <JWT_TOKEN>`
+- **Response**
+  ```json
+  {
+    "captain": { "fullname": { "firstname": "John", "lastname": "Doe" }, "email": "captain@example.com" }
+  }
+  ```
+
+#### 4. **Logout Captain**
+- **GET** `/captains/logout`
+- **Response**
+  ```json
+  { "message": "Logged out successfully" }
+  ```
 
 ---
 
-## User Logout Endpoint
-
-### Endpoint: `/users/logout`
-
-#### Description
-This endpoint allows authenticated users to log out by invalidating their JWT.
-
-#### Request Method
-`GET`
-
-#### Headers
-- **Authorization:** `Bearer <JWT_TOKEN>`
-
-#### Response
-##### Success Response
-- **Status Code:** `200 OK`
-- **Body:**
-  ```json
-  {
-    "message": "Logged out successfully"
-  }
-  ```
-
-##### Error Responses
-- **Status Code:** `401 Unauthorized`
-  - When the token is missing or invalid:
-    ```json
-    {
-      "message": "Authentication failed"
-    }
-    ```
+## Common Errors
+- **400**: Validation or missing fields.
+- **401**: Authentication failure.
+- **404**: Resource not found.
+- **500**: Internal server error.
 
 ---
 
 ## Environment Variables
-Make sure to configure the following environment variables:
-- **JWT_SECRET:** Secret key for JWT token generation.
-
-## Setup Instructions
-1. Clone the repository.
-2. Navigate to the `Backend` folder.
-3. Install dependencies:
-   ```bash
-   npm install
-   ```
-4. Set up your `.env` file with the required environment variables.
-5. Start the server:
-   ```bash
-   npm start
-   ```
-6. Test the endpoints using a tool like Postman or cURL.
+| Variable      | Description                  |
+|---------------|------------------------------|
+| `JWT_SECRET`  | Secret key for JWT tokens.   |
+| `DB_URI`      | MongoDB connection string.   |
 
 ---
 
-## Notes
-- Ensure the database is running and connected before starting the server.
-- Validate the token returned after authentication for secure access to other endpoints.
+## Setup Instructions
+1. Clone the repository and navigate to the `Backend` folder.
+2. Install dependencies: `npm install`
+3. Configure `.env` with the required variables.
+4. Start the server: `npm start`
+5. Use Postman or similar tools to test the endpoints.
 
+---
+
+**Note:** Ensure the database is running and input fields are validated to maintain security.
